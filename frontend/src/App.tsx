@@ -1,14 +1,18 @@
 import { Link, Route, Routes } from "react-router-dom";
 import Login from "./Login";
 import Dashboard from "./Dashboard";
+import Listings from "./Listings";
+import SellerNew from "./SellerNew";
 
 export default function App(){
   return (
     <div style={{fontFamily:"sans-serif", padding:16}}>
       <h1>Cloud Furniture</h1>
-      <nav style={{display:"flex", gap:12}}>
+      <nav style={{display:"flex", gap:12, flexWrap:"wrap"}}>
         <Link to="/">Login</Link>
         <Link to="/dashboard">Dashboard</Link>
+        <Link to="/listings">Browse</Link>
+        <Link to="/seller/new">Seller: New</Link>
         <button onClick={() => { localStorage.removeItem("token"); alert("Logged out"); }}>
           Logout
         </button>
@@ -16,6 +20,8 @@ export default function App(){
       <Routes>
         <Route path="/" element={<Login/>}/>
         <Route path="/dashboard" element={<Dashboard/>}/>
+        <Route path="/listings" element={<Listings/>}/>
+        <Route path="/seller/new" element={<SellerNew/>}/>
       </Routes>
     </div>
   );
