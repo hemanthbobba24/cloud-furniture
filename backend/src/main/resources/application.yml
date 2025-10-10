@@ -11,5 +11,11 @@ spring:
     mongodb:
       uri: mongodb://root:password@localhost:27017/furniture?authSource=admin
 
+app:
+  jwt:
+    secret: "dev-secret-change-this-please-32-bytes-min!"
+    expirySeconds: 86400
+
+
 server:
   port: 8080
