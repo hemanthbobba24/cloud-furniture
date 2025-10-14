@@ -5,6 +5,7 @@ import Listings from "./Listings";
 import SellerNew from "./SellerNew";
 import SellerMy from "./SellerMy";
 import SellerEdit from "./SellerEdit";
+import Admin from "./Admin";
 
 export default function App(){
   return (
@@ -16,6 +17,7 @@ export default function App(){
         <Link to="/listings">Browse</Link>
         <Link to="/seller/new">Seller: New</Link>
         <Link to="/seller/my">Seller: My Listings</Link>
+        <Link to="/admin">Admin</Link>
         <button onClick={() => { localStorage.removeItem("token"); alert("Logged out"); }}>
           Logout
         </button>
@@ -27,6 +29,7 @@ export default function App(){
         <Route path="/seller/new" element={<SellerNew/>}/>
         <Route path="/seller/my" element={<SellerMy/>}/>
         <Route path="/seller/edit/:id" element={<SellerEdit/>}/>
+        <Route path="/admin" element={<Admin/>}/>
       </Routes>
     </div>
   );
