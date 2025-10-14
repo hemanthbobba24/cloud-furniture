@@ -5,8 +5,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import java.time.Instant;
-import java.util.List;
 
 @Service
 public class ListingService {
@@ -44,9 +48,13 @@ public class ListingService {
     repo.deleteById(id);
   }
 
-  public List<Listing> search(String q){
-    if(q == null || q.isBlank()) return repo.findAll();
-    return repo.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(q, q);
+  public Page<Listing> search(String q, int page, int size, Sort sort){
+    Pageable pb = PageRequest.of(Math.max(0,page), Math.max(1,size),
+        (sort == null) ? Sort.by("createdAt").descending() : sort);
+    if(q == null || q.isBlank()) {
+      return repo.findAll(pb);
+    }
+    return repo.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(q, q, pb);
   }
 
   private static String currentEmail(){
