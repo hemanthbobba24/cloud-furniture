@@ -1,16 +1,9 @@
 package com.app.listing;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.MongoRepository;
-
+import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
-public interface ListingRepository extends MongoRepository<Listing, String> {
-  // search helpers
-  List<Listing> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String t, String d);
-  Page<Listing> findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(String t, String d, Pageable pageable);
-
-  // used by /api/v1/seller/my-listings
+public interface ListingRepository extends JpaRepository<Listing, Long> {
+  // Add this method:
   List<Listing> findBySellerEmail(String sellerEmail);
 }
