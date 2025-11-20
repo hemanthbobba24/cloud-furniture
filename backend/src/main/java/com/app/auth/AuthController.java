@@ -27,14 +27,14 @@ public class AuthController {
 
   @PostMapping("/login")
   public ResponseEntity<AuthDtos.AuthResponse> login(@RequestBody AuthDtos.LoginRequest req){
-    // Authenticate and get token
+    // Authenticate and get token (role is fetched from database)
     String token = svc.login(req.email, req.password);
 
-    // Fetch user to get actual role
+    // Fetch user to get actual role from database
     User user = userRepository.findByEmail(req.email)
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-    // Return response with actual role (not hardcoded string)
+    // Return response with actual role from database
     return ResponseEntity.ok(new AuthDtos.AuthResponse(token, req.email, user.getRole().name()));
   }
 
@@ -52,4 +52,5 @@ public class AuthController {
             "roles", user.getAuthorities().stream().map(a->a.getAuthority()).toList()
     ));
   }
+
 }

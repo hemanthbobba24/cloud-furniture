@@ -44,7 +44,7 @@ public class AuthService {
   }
 
   public String login(String email, String password) {
-    // Authenticate the user
+    // Authenticate WITHOUT the role - just email and password
     authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(email, password)
     );
@@ -55,12 +55,12 @@ public class AuthService {
     // Create UserDetails for JWT generation
     UserDetails userDetails = org.springframework.security.core.userdetails.User
             .withUsername(user.getEmail())
-            .password(user.getPasswordHash()) // Use getPasswordHash instead of getPassword
+            .password(user.getPasswordHash())
             .authorities("ROLE_" + user.getRole().name())
             .build();
 
     String token = jwtService.generateToken(userDetails);
-    System.out.println("[AuthService] Token generated for: " + email);
+    System.out.println("[AuthService] Token generated for: " + email + " with role: " + user.getRole());
 
     return token;
   }

@@ -87,7 +87,7 @@ export default function SellerEdit() {
 
   if (loading) {
     return (
-      <div style={{ padding: 24, textAlign: "center" }}>
+      <div style={{ padding: 40, textAlign: "center", color: "#666" }}>
         Loading listing...
       </div>
     );
@@ -302,6 +302,3 @@ export default function SellerEdit() {
     </main>
   );
 }
-
-
-

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import api from "../lib/api";
 import { useAuth } from "../AuthContext";
 
@@ -7,6 +7,12 @@ export default function Browse() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { role } = useAuth();
+
+  // Filter states
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [sortBy, setSortBy] = useState("newest");
+  const [priceRange, setPriceRange] = useState([0, 10000]);
 
   useEffect(() => {
     let cancelled = false;
@@ -17,9 +23,7 @@ export default function Browse() {
       try {
         const res = await api.get("/listings");
         if (!cancelled) {
-          // Backend returns array directly, not { items: [...] }
           const data = res.data;
-          
           if (Array.isArray(data)) {
             setItems(data);
           } else if (data && Array.isArray(data.items)) {
@@ -42,6 +46,74 @@ export default function Browse() {
     loadListings();
     return () => { cancelled = true; };
   }, []);
+
+  // Get unique categories
+  const categories = useMemo(() => {
+    const cats = items
+      .map(item => item.category)
+      .filter(Boolean)
+      .filter((v, i, a) => a.indexOf(v) === i);
+    return ['all', ...cats];
+  }, [items]);
+
+  // Filter and sort items
+  const filteredItems = useMemo(() => {
+    let result = [...items];
+
+    // Search filter
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      result = result.filter(item => 
+        item.title?.toLowerCase().includes(search) ||
+        item.description?.toLowerCase().includes(search) ||
+        item.category?.toLowerCase().includes(search)
+      );
+    }
+
+    // Category filter
+    if (selectedCategory !== 'all') {
+      result = result.filter(item => 
+        item.category?.toLowerCase() === selectedCategory.toLowerCase()
+      );
+    }
+
+    // Price range filter
+    result = result.filter(item => {
+      const price = Number(item.price) || 0;
+      return price >= priceRange[0] && price <= priceRange[1];
+    });
+
+    // Sort
+    switch (sortBy) {
+      case 'price-low':
+        result.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+        break;
+      case 'price-high':
+        result.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+        break;
+      case 'name-asc':
+        result.sort((a, b) => a.title.localeCompare(b.title));
+        break;
+      case 'name-desc':
+        result.sort((a, b) => b.title.localeCompare(a.title));
+        break;
+      case 'newest':
+        result.sort((a, b) => (b.id || 0) - (a.id || 0));
+        break;
+      default:
+        break;
+    }
+
+    return result;
+  }, [items, searchTerm, selectedCategory, sortBy, priceRange]);
+
+  // Clear all filters
+  const clearFilters = () => {
+    setSearchTerm("");
+    setSelectedCategory("all");
+    setSortBy("newest");
+    setPriceRange([0, 10000]);
+  };
 
   const handleAddToCart = (item) => {
     if (role !== "USER") {
@@ -106,26 +178,204 @@ export default function Browse() {
 
   return (
     <section style={{ padding: "24px 16px", maxWidth: 1400, margin: "0 auto" }}>
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center",
-        marginBottom: 32
-      }}>
+      {/* Header */}
+      <div style={{ marginBottom: 32 }}>
         <h1 style={{ 
           fontSize: 32, 
           fontWeight: 700, 
-          margin: 0,
+          margin: "0 0 24px",
           color: "#111"
         }}>
           Browse Products
         </h1>
-        <div style={{ color: "#666", fontSize: 14 }}>
-          {items.length} {items.length === 1 ? 'product' : 'products'}
+
+        {/* Search Bar */}
+        <div style={{ marginBottom: 24 }}>
+          <input
+            type="text"
+            placeholder="Search products by name, description, or category..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            style={{
+              width: "100%",
+              padding: "12px 16px",
+              fontSize: 16,
+              border: "2px solid #e5e7eb",
+              borderRadius: 8,
+              outline: "none",
+              transition: "border-color 0.2s"
+            }}
+            onFocus={(e) => e.target.style.borderColor = "#5b21b6"}
+            onBlur={(e) => e.target.style.borderColor = "#e5e7eb"}
+          />
+        </div>
+
+        {/* Filters Bar */}
+        <div style={{ 
+          display: "flex", 
+          gap: 12, 
+          flexWrap: "wrap",
+          alignItems: "center",
+          background: "#f9fafb",
+          padding: 16,
+          borderRadius: 8
+        }}>
+          {/* Category Filter */}
+          <div style={{ flex: "1 1 200px" }}>
+            <label style={{ 
+              display: "block", 
+              fontSize: 12, 
+              fontWeight: 600, 
+              color: "#6b7280",
+              marginBottom: 4
+            }}>
+              Category
+            </label>
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                border: "1px solid #d1d5db",
+                borderRadius: 6,
+                fontSize: 14,
+                cursor: "pointer"
+              }}
+            >
+              {categories.map(cat => (
+                <option key={cat} value={cat}>
+                  {cat === 'all' ? 'All Categories' : cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Sort By */}
+          <div style={{ flex: "1 1 200px" }}>
+            <label style={{ 
+              display: "block", 
+              fontSize: 12, 
+              fontWeight: 600, 
+              color: "#6b7280",
+              marginBottom: 4
+            }}>
+              Sort By
+            </label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                border: "1px solid #d1d5db",
+                borderRadius: 6,
+                fontSize: 14,
+                cursor: "pointer"
+              }}
+            >
+              <option value="newest">Newest First</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="name-asc">Name: A to Z</option>
+              <option value="name-desc">Name: Z to A</option>
+            </select>
+          </div>
+
+          {/* Price Range */}
+          <div style={{ flex: "1 1 250px" }}>
+            <label style={{ 
+              display: "block", 
+              fontSize: 12, 
+              fontWeight: 600, 
+              color: "#6b7280",
+              marginBottom: 4
+            }}>
+              Price Range: ${priceRange[0]} - ${priceRange[1]}
+            </label>
+            <div style={{ display: "flex", gap: 8 }}>
+              <input
+                type="number"
+                placeholder="Min"
+                value={priceRange[0]}
+                onChange={(e) => setPriceRange([Number(e.target.value), priceRange[1]])}
+                style={{
+                  flex: 1,
+                  padding: "8px",
+                  border: "1px solid #d1d5db",
+                  borderRadius: 6,
+                  fontSize: 14
+                }}
+              />
+              <input
+                type="number"
+                placeholder="Max"
+                value={priceRange[1]}
+                onChange={(e) => setPriceRange([priceRange[0], Number(e.target.value)])}
+                style={{
+                  flex: 1,
+                  padding: "8px",
+                  border: "1px solid #d1d5db",
+                  borderRadius: 6,
+                  fontSize: 14
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Clear Filters Button */}
+          <div style={{ flex: "0 0 auto" }}>
+            <label style={{ 
+              display: "block", 
+              fontSize: 12, 
+              fontWeight: 600, 
+              color: "transparent",
+              marginBottom: 4
+            }}>
+              .
+            </label>
+            <button
+              onClick={clearFilters}
+              style={{
+                padding: "8px 16px",
+                background: "#fff",
+                border: "1px solid #d1d5db",
+                borderRadius: 6,
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: 600,
+                color: "#374151"
+              }}
+            >
+              Clear Filters
+            </button>
+          </div>
+        </div>
+
+        {/* Results Count */}
+        <div style={{ 
+          marginTop: 16,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          color: "#6b7280",
+          fontSize: 14
+        }}>
+          <span>
+            Showing {filteredItems.length} of {items.length} products
+          </span>
+          {(searchTerm || selectedCategory !== 'all') && (
+            <span style={{ fontWeight: 600 }}>
+              {searchTerm && `"${searchTerm}"`}
+              {searchTerm && selectedCategory !== 'all' && ' in '}
+              {selectedCategory !== 'all' && `${selectedCategory}`}
+            </span>
+          )}
         </div>
       </div>
 
-      {items.length === 0 ? (
+      {/* Products Grid */}
+      {filteredItems.length === 0 ? (
         <div style={{ 
           textAlign: "center", 
           padding: 60,
@@ -133,9 +383,24 @@ export default function Browse() {
           borderRadius: 12,
           color: "#666"
         }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🛋️</div>
-          <h3 style={{ marginBottom: 8 }}>No products available</h3>
-          <p>Check back soon for new listings!</p>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
+          <h3 style={{ marginBottom: 8 }}>No products found</h3>
+          <p>Try adjusting your filters or search terms</p>
+          <button
+            onClick={clearFilters}
+            style={{
+              marginTop: 16,
+              padding: "10px 20px",
+              background: "#111",
+              color: "#fff",
+              border: "none",
+              borderRadius: 8,
+              cursor: "pointer",
+              fontWeight: 600
+            }}
+          >
+            Clear All Filters
+          </button>
         </div>
       ) : (
         <div style={{ 
@@ -143,7 +408,7 @@ export default function Browse() {
           gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", 
           gap: 24 
         }}>
-          {items.map((item) => (
+          {filteredItems.map((item) => (
             <ProductCard 
               key={item.id} 
               item={item} 
@@ -158,7 +423,7 @@ export default function Browse() {
 }
 
 // ============================================
-// Product Card Component
+// Product Card Component (Same as before)
 // ============================================
 function ProductCard({ item, onAddToCart, canAddToCart }) {
   const [isHovered, setIsHovered] = useState(false);
@@ -186,7 +451,7 @@ function ProductCard({ item, onAddToCart, canAddToCart }) {
       {/* Product Image */}
       <div style={{ 
         position: "relative",
-        paddingTop: "66.67%", // 3:2 aspect ratio
+        paddingTop: "66.67%",
         overflow: "hidden",
         background: "#f3f4f6"
       }}>
@@ -237,7 +502,6 @@ function ProductCard({ item, onAddToCart, canAddToCart }) {
         gap: 8,
         flex: 1
       }}>
-        {/* Title */}
         <h3 style={{ 
           margin: 0, 
           fontWeight: 700,
@@ -253,7 +517,6 @@ function ProductCard({ item, onAddToCart, canAddToCart }) {
           {item.title}
         </h3>
 
-        {/* Description */}
         <p style={{ 
           margin: 0, 
           color: "#6b7280", 
@@ -268,7 +531,6 @@ function ProductCard({ item, onAddToCart, canAddToCart }) {
           {item.description || "High quality furniture for your home"}
         </p>
 
-        {/* Price and Add to Cart */}
         <div style={{ 
           display: "flex", 
           justifyContent: "space-between", 
@@ -276,19 +538,15 @@ function ProductCard({ item, onAddToCart, canAddToCart }) {
           marginTop: "auto",
           paddingTop: 12
         }}>
-          {/* Price */}
-          <div>
-            <div style={{ 
-              fontSize: 24, 
-              fontWeight: 700,
-              color: "#111",
-              lineHeight: 1
-            }}>
-              ${Number(item.price ?? 0).toFixed(2)}
-            </div>
+          <div style={{ 
+            fontSize: 24, 
+            fontWeight: 700,
+            color: "#111",
+            lineHeight: 1
+          }}>
+            ${Number(item.price ?? 0).toFixed(2)}
           </div>
 
-          {/* Add to Cart Button */}
           <button
             disabled={!canAddToCart}
             onClick={(e) => {

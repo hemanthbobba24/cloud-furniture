@@ -18,7 +18,6 @@ export default function SellerMy() {
     setError("");
     try {
       const res = await api.get("/seller/my");
-      // Make sure we always set an array
       const data = res.data;
       if (Array.isArray(data)) {
         setListings(data);
@@ -27,12 +26,10 @@ export default function SellerMy() {
       }
     } catch (err) {
       console.error("[SellerMy] Error:", err);
-      setListings([]); // Set empty array on error
+      setListings([]);
       
       if (err.response?.status === 404) {
-        setError(
-          "Backend endpoint not found. Please create /api/v1/seller/my endpoint in your Spring Boot backend."
-        );
+        setError("Backend endpoint not found.");
       } else if (err.response?.status === 401) {
         setError("Unauthorized. Please login again.");
       } else {
@@ -44,7 +41,7 @@ export default function SellerMy() {
   }
 
   async function handleDelete(id, title) {
-    if (!window.confirm(`Are you sure you want to delete "${title}"?`)) {
+    if (!window.confirm(`Are you sure you want to delete "${title}"?\n\nThis action cannot be undone.`)) {
       return;
     }
 
@@ -64,7 +61,7 @@ export default function SellerMy() {
   if (loading) {
     return (
       <div style={{ padding: 40, textAlign: "center", color: "#666" }}>
-        <div style={{ fontSize: 18, marginBottom: 12 }}>Loading your listings...</div>
+        Loading your listings...
       </div>
     );
   }
@@ -77,7 +74,9 @@ export default function SellerMy() {
         alignItems: "center",
         marginBottom: 24 
       }}>
-        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>My Listings</h1>
+        <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>
+          My Listings ({listings.length})
+        </h1>
         <Link 
           to="/seller/new"
           style={{
@@ -103,16 +102,7 @@ export default function SellerMy() {
           marginBottom: 24,
           border: "1px solid #fca5a5"
         }}>
-          <strong>Error:</strong> {error}
-          <div style={{ marginTop: 12, fontSize: 13, background: "#fff", padding: 12, borderRadius: 6 }}>
-            <strong>To fix this:</strong>
-            <ol style={{ margin: "8px 0", paddingLeft: 20 }}>
-              <li>Create SellerController.java in your backend</li>
-              <li>Add the endpoint: GET /api/v1/seller/my</li>
-              <li>Make sure ListingRepository has: findBySellerEmail(String email)</li>
-              <li>Restart your Spring Boot application</li>
-            </ol>
-          </div>
+          {error}
         </div>
       )}
 

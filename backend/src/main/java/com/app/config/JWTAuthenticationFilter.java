@@ -34,8 +34,19 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String path = request.getServletPath();
+        // ✅ Use getRequestURI() instead of getServletPath() for reliable path checking
+        String path = request.getRequestURI();
+
+        // Skip JWT validation for public auth endpoints
         if (path.startsWith("/api/v1/auth/")) {
+            System.out.println("[JWT] Skipping auth endpoint: " + path);
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Skip JWT validation for public listing endpoints
+        if (path.equals("/api/v1/listings") || path.startsWith("/api/v1/listings/")) {
+            System.out.println("[JWT] Skipping public listing endpoint: " + path);
             filterChain.doFilter(request, response);
             return;
         }

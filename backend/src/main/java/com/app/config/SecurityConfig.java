@@ -17,12 +17,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 
 import java.util.Arrays;
 import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final JWTAuthenticationFilter jwtAuthFilter;
@@ -41,10 +43,13 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // ✅ CRITICAL: Allow OPTIONS requests for CORS preflight
+                        .requestMatchers("OPTIONS", "/**").permitAll()
+
                         // Public endpoints
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api/v1/listings").permitAll()  // GET and POST both allowed
-                        .requestMatchers("/api/v1/listings/**").permitAll()  // Individual listing by ID
+                        .requestMatchers("/api/v1/listings").permitAll()
+                        .requestMatchers("/api/v1/listings/**").permitAll()
 
                         // Authenticated endpoints
                         .requestMatchers("/api/v1/seller/**").authenticated()
@@ -74,6 +79,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // Cache preflight for 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -90,3 +96,11 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 }
+
+
+
+
+
+
+
+
