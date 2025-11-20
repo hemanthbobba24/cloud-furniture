@@ -2,59 +2,47 @@ package com.app.admin;
 
 import com.app.listing.Listing;
 import com.app.listing.ListingRepository;
-import com.app.user.User;
-import com.app.user.UserRepository;
-import com.app.common.PageDto;
-import org.springframework.data.domain.*;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/admin")
-@PreAuthorize("hasRole('ADMIN')")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AdminController {
-  private final ListingRepository listings;
-  private final UserRepository users;
 
-  public AdminController(ListingRepository listings, UserRepository users) {
-    this.listings = listings; this.users = users;
+  private final ListingRepository listingRepository;
+
+  public AdminController(ListingRepository listingRepository) {
+    this.listingRepository = listingRepository;
   }
 
-  @GetMapping("/stats")
-  public StatsDto stats() {
-    return new StatsDto(users.count(), listings.count());
-  }
+  @GetMapping("/seller-requests")
+  public ResponseEntity<List<Map<String, Object>>> getSellerRequests(
+          @AuthenticationPrincipal UserDetails userDetails) {
 
-  @GetMapping("/listings")
-  public PageDto<Listing> allListings(
-      @RequestParam(required=false) String q,
-      @RequestParam(defaultValue="0") int page,
-      @RequestParam(defaultValue="10") int size,
-      @RequestParam(required=false, name="sort") String sortParam
-  ) {
-    Sort sort = Sort.by("createdAt").descending();
-    if (sortParam != null && !sortParam.isBlank()) {
-      String[] p = sortParam.split(",",2);
-      sort = (p.length>1 && "asc".equalsIgnoreCase(p[1])) ? Sort.by(p[0]).ascending() : Sort.by(p[0]).descending();
+    if (userDetails == null) {
+      return ResponseEntity.status(401).build();
     }
-    Pageable pb = PageRequest.of(Math.max(page,0), Math.max(size,1), sort);
-    Page<Listing> res = (q == null || q.isBlank())
-        ? listings.findAll(pb)
-        : listings.findByTitleContainingIgnoreCaseOrDescriptionContainingIgnoreCase(q, q, pb);
 
-    return new PageDto<>(res.getContent(), res.getNumber(), res.getSize(),
-                         res.getTotalElements(), res.getTotalPages(), sortParam);
+    // Return empty list for now - implement seller approval logic later
+    return ResponseEntity.ok(List.of());
   }
 
-  @DeleteMapping("/listings/{id}")
-  public void deleteListing(@PathVariable String id) {
-    listings.deleteById(id);
-  }
+  @PostMapping("/approve-seller/{id}")
+  public ResponseEntity<?> approveSeller(
+          @PathVariable Long id,
+          @AuthenticationPrincipal UserDetails userDetails) {
 
-  @GetMapping("/users")
-  public Iterable<User> users() {
-    return users.findAll();
-  }
+    if (userDetails == null) {
+      return ResponseEntity.status(401).build();
+    }
 
-  public record StatsDto(long users, long listings) {}
+    // Implement seller approval logic here
+    return ResponseEntity.ok().build();
+  }
 }

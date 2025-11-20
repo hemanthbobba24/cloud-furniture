@@ -3,7 +3,7 @@ import api from "../lib/api";
 import { useAuth } from "../AuthContext";
 
 export default function Browse() {
-  const [data, setData] = useState({ items: [] });
+  const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const { role } = useAuth();
@@ -17,13 +17,22 @@ export default function Browse() {
       try {
         const res = await api.get("/listings");
         if (!cancelled) {
-          setData(res.data || { items: [] });
+          // Backend returns array directly, not { items: [...] }
+          const data = res.data;
+          
+          if (Array.isArray(data)) {
+            setItems(data);
+          } else if (data && Array.isArray(data.items)) {
+            setItems(data.items);
+          } else {
+            setItems([]);
+          }
         }
       } catch (err) {
         console.error("[Browse] failed:", err);
         if (!cancelled) {
           setError("Failed to load products. Please try again.");
-          setData({ items: [] });
+          setItems([]);
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -59,8 +68,6 @@ export default function Browse() {
     }
     
     localStorage.setItem("cart", JSON.stringify(cart));
-    
-    // Dispatch custom event for cart badge update (if you add that later)
     window.dispatchEvent(new Event('cartUpdated'));
   };
 
@@ -114,11 +121,11 @@ export default function Browse() {
           Browse Products
         </h1>
         <div style={{ color: "#666", fontSize: 14 }}>
-          {data.items.length} {data.items.length === 1 ? 'product' : 'products'}
+          {items.length} {items.length === 1 ? 'product' : 'products'}
         </div>
       </div>
 
-      {data.items.length === 0 ? (
+      {items.length === 0 ? (
         <div style={{ 
           textAlign: "center", 
           padding: 60,
@@ -136,7 +143,7 @@ export default function Browse() {
           gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", 
           gap: 24 
         }}>
-          {data.items.map((item) => (
+          {items.map((item) => (
             <ProductCard 
               key={item.id} 
               item={item} 

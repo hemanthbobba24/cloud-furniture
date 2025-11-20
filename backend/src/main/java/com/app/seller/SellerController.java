@@ -2,8 +2,6 @@ package com.app.seller;
 
 import com.app.listing.Listing;
 import com.app.listing.ListingRepository;
-import com.app.user.User;
-import com.app.user.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,17 +15,11 @@ import java.util.List;
 public class SellerController {
 
   private final ListingRepository listingRepository;
-  private final UserRepository userRepository;
 
-  public SellerController(ListingRepository listingRepository, UserRepository userRepository) {
+  public SellerController(ListingRepository listingRepository) {
     this.listingRepository = listingRepository;
-    this.userRepository = userRepository;
   }
 
-  /**
-   * GET /api/v1/seller/my
-   * Returns all listings created by the currently authenticated seller
-   */
   @GetMapping("/my")
   public ResponseEntity<List<Listing>> getMyListings(@AuthenticationPrincipal UserDetails userDetails) {
     if (userDetails == null) {
@@ -42,10 +34,6 @@ public class SellerController {
     return ResponseEntity.ok(listings);
   }
 
-  /**
-   * DELETE /api/v1/seller/listings/{id}
-   * Deletes a listing owned by the current seller
-   */
   @DeleteMapping("/listings/{id}")
   public ResponseEntity<?> deleteListing(
           @PathVariable Long id,
@@ -58,21 +46,14 @@ public class SellerController {
     Listing listing = listingRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Listing not found"));
 
-    // Check if the listing belongs to the current seller
     if (!listing.getSellerEmail().equals(userDetails.getUsername())) {
-      return ResponseEntity.status(403).body("Not authorized to delete this listing");
+      return ResponseEntity.status(403).body("Not authorized");
     }
 
     listingRepository.deleteById(id);
-    System.out.println("[SellerController] Deleted listing " + id);
-
     return ResponseEntity.ok().build();
   }
 
-  /**
-   * PUT /api/v1/seller/listings/{id}
-   * Updates a listing owned by the current seller
-   */
   @PutMapping("/listings/{id}")
   public ResponseEntity<Listing> updateListing(
           @PathVariable Long id,
@@ -86,23 +67,20 @@ public class SellerController {
     Listing existing = listingRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Listing not found"));
 
-    // Check ownership
     if (!existing.getSellerEmail().equals(userDetails.getUsername())) {
       return ResponseEntity.status(403).build();
     }
 
-    // Update fields
     existing.setTitle(updatedListing.getTitle());
     existing.setDescription(updatedListing.getDescription());
     existing.setCategory(updatedListing.getCategory());
     existing.setPrice(updatedListing.getPrice());
+
     if (updatedListing.getImages() != null) {
       existing.setImages(updatedListing.getImages());
     }
 
     Listing saved = listingRepository.save(existing);
-    System.out.println("[SellerController] Updated listing " + id);
-
     return ResponseEntity.ok(saved);
   }
 }

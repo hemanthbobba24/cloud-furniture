@@ -1,34 +1,67 @@
 package com.app.auth;
 
-import com.app.security.JwtService;
-import com.app.user.*;
+import com.app.user.Role;
+import com.app.user.User;
+import com.app.user.UserRepository;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
-
 @Service
 public class AuthService {
-  private final UserRepository users;
-  private final PasswordEncoder enc;
-  private final JwtService jwt;
 
-  public AuthService(UserRepository users, PasswordEncoder enc, JwtService jwt) {
-    this.users = users; this.enc = enc; this.jwt = jwt;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
+  private final JwtService jwtService;
+  private final AuthenticationManager authenticationManager;
+
+  public AuthService(
+          UserRepository userRepository,
+          PasswordEncoder passwordEncoder,
+          JwtService jwtService,
+          AuthenticationManager authenticationManager) {
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+    this.jwtService = jwtService;
+    this.authenticationManager = authenticationManager;
   }
 
-  public void signup(String email, String raw, Role role){
-    if (users.existsByEmail(email)) throw new RuntimeException("Email exists");
-    var u = new User();
-    u.setEmail(email);
-    u.setPasswordHash(enc.encode(raw));
-    u.setRole(role == null ? Role.USER : role);
-    users.save(u);
+  public void signup(String email, String password, Role role) {
+    if (userRepository.findByEmail(email).isPresent()) {
+      throw new RuntimeException("User already exists");
+    }
+
+    User user = new User();
+    user.setEmail(email);
+    // Use setPasswordHash instead of setPassword
+    user.setPasswordHash(passwordEncoder.encode(password));
+    user.setRole(role);
+
+    userRepository.save(user);
+    System.out.println("[AuthService] User created: " + email + " with role: " + role);
   }
 
-  public String login(String email, String raw){
-    var u = users.findByEmail(email).orElseThrow(() -> new RuntimeException("Invalid credentials"));
-    if (!enc.matches(raw, u.getPasswordHash())) throw new RuntimeException("Invalid credentials");
-    return jwt.generate(u.getEmail(), Map.of("role", u.getRole().name()));
+  public String login(String email, String password) {
+    // Authenticate the user
+    authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(email, password)
+    );
+
+    User user = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found"));
+
+    // Create UserDetails for JWT generation
+    UserDetails userDetails = org.springframework.security.core.userdetails.User
+            .withUsername(user.getEmail())
+            .password(user.getPasswordHash()) // Use getPasswordHash instead of getPassword
+            .authorities("ROLE_" + user.getRole().name())
+            .build();
+
+    String token = jwtService.generateToken(userDetails);
+    System.out.println("[AuthService] Token generated for: " + email);
+
+    return token;
   }
 }

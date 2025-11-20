@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 import { safeRole } from "./role";
+import { useState, useEffect } from "react";
 
 export default function Navbar() {
   const { role: ctxRole, logout, token } = useAuth();
@@ -13,8 +14,28 @@ export default function Navbar() {
   const navigate = useNavigate();
   const loc = useLocation();
 
+  const [cartCount, setCartCount] = useState(0);
+
+  // Update cart count
+  useEffect(() => {
+    updateCartCount();
+    
+    // Listen for cart updates
+    window.addEventListener('cartUpdated', updateCartCount);
+    return () => window.removeEventListener('cartUpdated', updateCartCount);
+  }, []);
+
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+    const total = cart.reduce((sum, item) => sum + (item.qty || 1), 0);
+    setCartCount(total);
+  }
+
   const handleLogout = () => {
     logout();
+    // Clear cart on logout
+    localStorage.removeItem("cart");
+    setCartCount(0);
     if (loc.pathname !== "/browse") navigate("/browse");
   };
 
@@ -38,10 +59,38 @@ export default function Navbar() {
 
       <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
         <Link to="/browse" style={{ textDecoration: "none", color: "#111" }}>Browse</Link>
-        {isUser && <Link to="/cart" style={{ textDecoration: "none", color: "#111" }}>Cart</Link>}
+        
+        {isUser && (
+          <Link to="/cart" style={{ 
+            textDecoration: "none", 
+            color: "#111",
+            position: "relative"
+          }}>
+            Cart
+            {cartCount > 0 && (
+              <span style={{
+                position: "absolute",
+                top: -8,
+                right: -12,
+                background: "#dc2626",
+                color: "#fff",
+                borderRadius: "50%",
+                width: 20,
+                height: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: 11,
+                fontWeight: 700
+              }}>
+                {cartCount > 99 ? '99+' : cartCount}
+              </span>
+            )}
+          </Link>
+        )}
+        
         {isSeller && <Link to="/seller/my" style={{ textDecoration: "none", color: "#111" }}>My Items</Link>}
         {isSeller && <Link to="/seller/new" style={{ textDecoration: "none", color: "#111" }}>Add Item</Link>}
-        {/* FIXED: Changed from /admin/users to /admin */}
         {isAdmin && <Link to="/admin" style={{ textDecoration: "none", color: "#111" }}>Admin</Link>}
 
         {!isAuthed ? (

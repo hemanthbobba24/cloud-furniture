@@ -22,3 +22,6 @@ app:
     secret: "2f585bc1a2f3462bb4d3b3a3f2f9a9dd3f7a7f2c6f4e9a4c3b8f2e7a6d9c1b2a"
     expirySeconds: 86400
 
+# Allow bean definition overriding (fixes CORS conflict)
+  main:
+    allow-bean-definition-overriding: true
