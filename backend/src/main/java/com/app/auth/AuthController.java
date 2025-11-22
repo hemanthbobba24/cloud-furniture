@@ -6,7 +6,10 @@ import com.app.user.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/auth")
@@ -15,25 +18,26 @@ public class AuthController {
   private final AuthService svc;
   private final UserRepository userRepository;
 
+
   public AuthController(AuthService s, UserRepository userRepository) {
     this.svc = s;
     this.userRepository = userRepository;
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<?> signup(@RequestBody AuthDtos.SignupRequest req){
+  public ResponseEntity<?> signup(@RequestBody AuthDtos.SignupRequest req) {
     System.out.println("[AuthController] Signup request for: " + req.email + " with role: " + req.role);
     try {
       svc.signup(req.email, req.password, req.role == null ? Role.USER : req.role);
       return ResponseEntity.ok().build();
     } catch (Exception e) {
       System.err.println("[AuthController] Signup error: " + e.getMessage());
-      return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+      return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
     }
   }
 
   @PostMapping("/login")
-  public ResponseEntity<?> login(@RequestBody AuthDtos.LoginRequest req){
+  public ResponseEntity<?> login(@RequestBody AuthDtos.LoginRequest req) {
     System.out.println("[AuthController] Login attempt for: " + req.email);
 
     try {
@@ -51,12 +55,12 @@ public class AuthController {
     } catch (Exception e) {
       System.err.println("[AuthController] Login error for " + req.email + ": " + e.getMessage());
       e.printStackTrace();
-      return ResponseEntity.status(401).body(java.util.Map.of("message", "Invalid email or password"));
+      return ResponseEntity.status(401).body(Map.of("message", "Invalid email or password"));
     }
   }
 
   @GetMapping("/me")
-  public ResponseEntity<?> me(@AuthenticationPrincipal UserDetails user){
+  public ResponseEntity<?> me(@AuthenticationPrincipal UserDetails user) {
     if (user == null) {
       System.err.println("[AuthController] /me called without authentication");
       return ResponseEntity.status(401).build();
@@ -68,10 +72,10 @@ public class AuthController {
     User fullUser = userRepository.findByEmail(user.getUsername())
             .orElseThrow(() -> new RuntimeException("User not found"));
 
-    return ResponseEntity.ok(java.util.Map.of(
+    return ResponseEntity.ok(Map.of(
             "email", user.getUsername(),
             "role", fullUser.getRole().name(),
-            "roles", user.getAuthorities().stream().map(a->a.getAuthority()).toList()
+            "roles", user.getAuthorities().stream().map(a -> a.getAuthority()).toList()
     ));
   }
 }

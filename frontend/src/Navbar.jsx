@@ -61,32 +61,38 @@ export default function Navbar() {
         <Link to="/browse" style={{ textDecoration: "none", color: "#111" }}>Browse</Link>
         
         {isUser && (
-          <Link to="/cart" style={{ 
-            textDecoration: "none", 
-            color: "#111",
-            position: "relative"
-          }}>
-            Cart
-            {cartCount > 0 && (
-              <span style={{
-                position: "absolute",
-                top: -8,
-                right: -12,
-                background: "#dc2626",
-                color: "#fff",
-                borderRadius: "50%",
-                width: 20,
-                height: 20,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 11,
-                fontWeight: 700
-              }}>
-                {cartCount > 99 ? '99+' : cartCount}
-              </span>
-            )}
-          </Link>
+          <>
+            <Link to="/cart" style={{ 
+              textDecoration: "none", 
+              color: "#111",
+              position: "relative"
+            }}>
+              Cart
+              {cartCount > 0 && (
+                <span style={{
+                  position: "absolute",
+                  top: -8,
+                  right: -12,
+                  background: "#dc2626",
+                  color: "#fff",
+                  borderRadius: "50%",
+                  width: 20,
+                  height: 20,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: 11,
+                  fontWeight: 700
+                }}>
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              )}
+            </Link>
+            {/* ✅ NEW: Become a Seller Link */}
+            <Link to="/request-seller" style={{ textDecoration: "none", color: "#111" }}>
+              Become a Seller
+            </Link>
+          </>
         )}
         
         {isSeller && <Link to="/seller/my" style={{ textDecoration: "none", color: "#111" }}>My Items</Link>}

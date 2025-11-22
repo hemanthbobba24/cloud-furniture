@@ -43,6 +43,7 @@ public class AuthService {
     System.out.println("[AuthService] User created: " + email + " with role: " + role);
   }
 
+
   public String login(String email, String password) {
     // Authenticate WITHOUT the role - just email and password
     authenticationManager.authenticate(

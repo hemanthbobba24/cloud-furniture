@@ -448,13 +448,11 @@ function AdminListingCard({ item, onDelete, isDeleting }) {
   );
 }
 
-// ============================================
-// Seller Requests Component
-// ============================================
 function SellerRequests() {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [processing, setProcessing] = useState(null);
 
   useEffect(() => {
     loadRequests();
@@ -475,12 +473,32 @@ function SellerRequests() {
   }
 
   async function approveRequest(id, email) {
+    if (!window.confirm(`Approve seller request from ${email}?`)) return;
+
+    setProcessing(id);
     try {
       await api.post(`/admin/approve-seller/${id}`);
       alert(`${email} approved as seller!`);
       loadRequests();
     } catch (err) {
-      alert("Failed to approve seller request");
+      alert(err?.response?.data?.message || "Failed to approve seller request");
+    } finally {
+      setProcessing(null);
+    }
+  }
+
+  async function rejectRequest(id, email) {
+    if (!window.confirm(`Reject seller request from ${email}?`)) return;
+
+    setProcessing(id);
+    try {
+      await api.post(`/admin/reject-seller/${id}`);
+      alert(`Seller request from ${email} rejected`);
+      loadRequests();
+    } catch (err) {
+      alert(err?.response?.data?.message || "Failed to reject seller request");
+    } finally {
+      setProcessing(null);
     }
   }
 
@@ -524,33 +542,66 @@ function SellerRequests() {
             <div 
               key={req.id}
               style={{ 
-                padding: 16,
-                borderBottom: idx < requests.length - 1 ? "1px solid #e5e7eb" : "none",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center"
+                padding: 20,
+                borderBottom: idx < requests.length - 1 ? "1px solid #e5e7eb" : "none"
               }}
             >
-              <div>
-                <div style={{ fontWeight: 600 }}>{req.email}</div>
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontWeight: 700, fontSize: 16, marginBottom: 4 }}>
+                  {req.userEmail}
+                </div>
                 <div style={{ fontSize: 12, color: "#6b7280" }}>
-                  Requested: {new Date(req.createdAt || Date.now()).toLocaleDateString()}
+                  Requested: {new Date(req.createdAt).toLocaleString()}
                 </div>
               </div>
-              <button
-                onClick={() => approveRequest(req.id, req.email)}
-                style={{
-                  padding: "8px 16px",
-                  background: "#10b981",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: 6,
-                  cursor: "pointer",
-                  fontWeight: 600
-                }}
-              >
-                Approve
-              </button>
+
+              {req.message && (
+                <div style={{ 
+                  background: "#f9fafb", 
+                  padding: 12, 
+                  borderRadius: 8,
+                  marginBottom: 12,
+                  fontSize: 14,
+                  color: "#374151"
+                }}>
+                  <strong>Message:</strong> {req.message}
+                </div>
+              )}
+
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  onClick={() => approveRequest(req.id, req.userEmail)}
+                  disabled={processing === req.id}
+                  style={{
+                    padding: "8px 16px",
+                    background: processing === req.id ? "#9ca3af" : "#10b981",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 6,
+                    cursor: processing === req.id ? "not-allowed" : "pointer",
+                    fontWeight: 600,
+                    fontSize: 14
+                  }}
+                >
+                  {processing === req.id ? "Processing..." : "Approve"}
+                </button>
+                <button
+                  onClick={() => rejectRequest(req.id, req.userEmail)}
+                  disabled={processing === req.id}
+                  style={{
+                    padding: "8px 16px",
+                    background: processing === req.id ? "#9ca3af" : "#dc2626",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: 6,
+                    cursor: processing === req.id ? "not-allowed" : "pointer",
+                    fontWeight: 600,
+                    fontSize: 14
+                  }}
+                >
+                  {processing === req.id ? "Processing..." : "Reject"}
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -558,7 +609,6 @@ function SellerRequests() {
     </div>
   );
 }
-
 // ============================================
 // Statistics Component
 // ============================================

@@ -13,6 +13,7 @@ import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Cart from "./pages/Cart";
+import RequestSeller from "./pages/RequestSeller";
 
 function Guard({ roles, element }) {
   const { token, role } = useAuth();
@@ -38,6 +39,8 @@ export default function App() {
 
           {/* User */}
           <Route path="/cart" element={<Guard roles={["USER"]} element={<Cart />} />} />
+          <Route path="/cart" element={<Guard roles={["USER"]} element={<Cart />} />} />
+<Route path="/request-seller" element={<Guard roles={["USER"]} element={<RequestSeller />} />} />
 
           {/* Seller */}
           <Route path="/seller/my" element={<Guard roles={["SELLER"]} element={<SellerMy />} />} />

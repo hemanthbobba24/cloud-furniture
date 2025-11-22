@@ -1,6 +1,7 @@
 package com.app.user;
 
 import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -14,16 +15,36 @@ public class User {
   private String email;
 
   @Column(nullable = false)
-  private String passwordHash; // ← This is the field name
+  private String passwordHash;
 
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private Role role;
 
+  // ✅ ADD THESE FIELDS
+  @Column(name = "created_at", nullable = false, updatable = false)
+  private LocalDateTime createdAt;
+
+  @Column(name = "updated_at")
+  private LocalDateTime updatedAt;
+
+  // ✅ ADD THIS METHOD - Auto-set timestamp before insert
+  @PrePersist
+  protected void onCreate() {
+    createdAt = LocalDateTime.now();
+    updatedAt = LocalDateTime.now();
+  }
+
+  // ✅ ADD THIS METHOD - Auto-update timestamp before update
+  @PreUpdate
+  protected void onUpdate() {
+    updatedAt = LocalDateTime.now();
+  }
+
   // Constructors
   public User() {}
 
-  // Getters and Setters
+  // Existing Getters and Setters
   public Long getId() {
     return id;
   }
@@ -54,5 +75,22 @@ public class User {
 
   public void setRole(Role role) {
     this.role = role;
+  }
+
+  // ✅ ADD THESE GETTERS/SETTERS
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(LocalDateTime createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public LocalDateTime getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(LocalDateTime updatedAt) {
+    this.updatedAt = updatedAt;
   }
 }
