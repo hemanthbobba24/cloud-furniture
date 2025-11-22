@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
   private final AuthService svc;
   private final UserRepository userRepository;
@@ -21,26 +22,47 @@ public class AuthController {
 
   @PostMapping("/signup")
   public ResponseEntity<?> signup(@RequestBody AuthDtos.SignupRequest req){
-    svc.signup(req.email, req.password, req.role == null ? Role.USER : req.role);
-    return ResponseEntity.ok().build();
+    System.out.println("[AuthController] Signup request for: " + req.email + " with role: " + req.role);
+    try {
+      svc.signup(req.email, req.password, req.role == null ? Role.USER : req.role);
+      return ResponseEntity.ok().build();
+    } catch (Exception e) {
+      System.err.println("[AuthController] Signup error: " + e.getMessage());
+      return ResponseEntity.badRequest().body(java.util.Map.of("message", e.getMessage()));
+    }
   }
 
   @PostMapping("/login")
-  public ResponseEntity<AuthDtos.AuthResponse> login(@RequestBody AuthDtos.LoginRequest req){
-    // Authenticate and get token (role is fetched from database)
-    String token = svc.login(req.email, req.password);
+  public ResponseEntity<?> login(@RequestBody AuthDtos.LoginRequest req){
+    System.out.println("[AuthController] Login attempt for: " + req.email);
 
-    // Fetch user to get actual role from database
-    User user = userRepository.findByEmail(req.email)
-            .orElseThrow(() -> new RuntimeException("User not found"));
+    try {
+      // Authenticate and get token (role is fetched from database)
+      String token = svc.login(req.email, req.password);
 
-    // Return response with actual role from database
-    return ResponseEntity.ok(new AuthDtos.AuthResponse(token, req.email, user.getRole().name()));
+      // Fetch user to get actual role from database
+      User user = userRepository.findByEmail(req.email)
+              .orElseThrow(() -> new RuntimeException("User not found"));
+
+      System.out.println("[AuthController] Login successful for: " + req.email + " with role: " + user.getRole());
+
+      // Return response with actual role from database
+      return ResponseEntity.ok(new AuthDtos.AuthResponse(token, req.email, user.getRole().name()));
+    } catch (Exception e) {
+      System.err.println("[AuthController] Login error for " + req.email + ": " + e.getMessage());
+      e.printStackTrace();
+      return ResponseEntity.status(401).body(java.util.Map.of("message", "Invalid email or password"));
+    }
   }
 
   @GetMapping("/me")
   public ResponseEntity<?> me(@AuthenticationPrincipal UserDetails user){
-    if (user == null) return ResponseEntity.status(401).build();
+    if (user == null) {
+      System.err.println("[AuthController] /me called without authentication");
+      return ResponseEntity.status(401).build();
+    }
+
+    System.out.println("[AuthController] /me called for: " + user.getUsername());
 
     // Fetch full user to get role
     User fullUser = userRepository.findByEmail(user.getUsername())
@@ -52,5 +74,4 @@ public class AuthController {
             "roles", user.getAuthorities().stream().map(a->a.getAuthority()).toList()
     ));
   }
-
 }
