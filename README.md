@@ -270,12 +270,6 @@ DELETE /admin/listings/{id}               # Delete any listing
 
 ## 📸 Screenshots
 
-_Add screenshots of your application here:_
-- Home/Browse page
-- Product details
-- Shopping cart
-- Seller dashboard
-- Admin panel
 
 ## 🤝 Contributing
 
@@ -312,4 +306,3 @@ This project is open source and available under the [MIT License](LICENSE).
 
 **Live Demo:** _Coming soon!_
 
-**Portfolio:** _Add your portfolio link here_
