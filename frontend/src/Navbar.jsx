@@ -19,7 +19,7 @@ export default function Navbar() {
   // Update cart count
   useEffect(() => {
     updateCartCount();
-    
+
     // Listen for cart updates
     window.addEventListener('cartUpdated', updateCartCount);
     return () => window.removeEventListener('cartUpdated', updateCartCount);
@@ -42,59 +42,63 @@ export default function Navbar() {
   return (
     <header style={{
       display:"flex",
-      alignItems:"center",
+      alignItems: "center",
       justifyContent:"space-between",
       padding:"16px 20px",
       borderBottom:"1px solid #eee",
       background: "#fff"
     }}>
-      <Link to="/" style={{ 
-        fontWeight: 700, 
-        textDecoration: "none", 
-        color: "#4b2aad",
-        fontSize: 18
-      }}>
-        Cloud Furniture
-      </Link>
+      <Link to="/" style={{
+          fontWeight: 700,
+          textDecoration: "none",
+          color: "#4b2aad",
+          fontSize: 18
+        }}>
+         Cloud Furniture
+       </Link>
 
       <nav style={{ display: "flex", gap: 16, alignItems: "center" }}>
         <Link to="/browse" style={{ textDecoration: "none", color: "#111" }}>Browse</Link>
-        
+
         {isUser && (
           <>
-            <Link to="/cart" style={{ 
-              textDecoration: "none", 
-              color: "#111",
-              position: "relative"
-            }}>
-              Cart
-              {cartCount > 0 && (
-                <span style={{
-                  position: "absolute",
-                  top: -8,
-                  right: -12,
-                  background: "#dc2626",
-                  color: "#fff",
-                  borderRadius: "50%",
-                  width: 20,
-                  height: 20,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: 11,
-                  fontWeight: 700
-                }}>
-                  {cartCount > 99 ? '99+' : cartCount}
-                </span>
-              )}
-            </Link>
-            {/* ✅ NEW: Become a Seller Link */}
-            <Link to="/request-seller" style={{ textDecoration: "none", color: "#111" }}>
-              Become a Seller
-            </Link>
+            <Link to="/cart" style={{
+             textDecoration: "none",
+             color: "#111",
+             position: "relative"
+           }}>
+                            Cart
+                            {cartCount > 0 && (
+                                <span style={{
+                                    position: "absolute",
+                                    top: -8,
+                                    right: -12,
+                                    background: "#dc2626",
+                                    color: "#fff",
+                                    borderRadius: "50%",
+                                    width: 20,
+                                    height: 20,
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontSize: 11,
+                                    fontWeight: 700
+                                }}>
+                                    {cartCount > 99 ? '99+' : cartCount}
+                                </span>
+                            )}
+                        </Link>
+                        {/* ✅ NEW: Become a Seller Link */}
+                        <Link to="/request-seller" style={{ textDecoration: "none", color: "#111" }}>
+                       Become a Seller
+                      </Link>
+                      <Link to="/change-password" style={{ textDecoration: "none", color: "#111" }}>
+                          Change Paswword
+                      </Link>
+
           </>
         )}
-        
+
         {isSeller && <Link to="/seller/my" style={{ textDecoration: "none", color: "#111" }}>My Items</Link>}
         {isSeller && <Link to="/seller/new" style={{ textDecoration: "none", color: "#111" }}>Add Item</Link>}
         {isAdmin && <Link to="/admin" style={{ textDecoration: "none", color: "#111" }}>Admin</Link>}
@@ -105,7 +109,7 @@ export default function Navbar() {
             <Link to="/signup" style={{ textDecoration: "none", color: "#5b21b6" }}>Sign up</Link>
           </>
         ) : (
-          <button onClick={handleLogout} style={{ 
+          <button onClick={handleLogout} style={{
             padding: "8px 16px",
             background: "#111",
             color: "#fff",

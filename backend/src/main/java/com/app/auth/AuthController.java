@@ -3,6 +3,8 @@ package com.app.auth;
 import com.app.user.Role;
 import com.app.user.User;
 import com.app.user.UserRepository;
+import com.app.user.UserService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,11 +19,12 @@ import java.util.Map;
 public class AuthController {
   private final AuthService svc;
   private final UserRepository userRepository;
+  private final UserService userService;
 
-
-  public AuthController(AuthService s, UserRepository userRepository) {
+  public AuthController(AuthService s, UserRepository userRepository,UserService userService) {
     this.svc = s;
     this.userRepository = userRepository;
+    this.userService  = userService;
   }
 
   @PostMapping("/signup")
@@ -78,4 +81,35 @@ public class AuthController {
             "roles", user.getAuthorities().stream().map(a -> a.getAuthority()).toList()
     ));
   }
+  @PostMapping("/change-password")
+	public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request,
+			@AuthenticationPrincipal UserDetails userDetails) {
+		String regex = "^(?=.*[0-9])(?=.*[!@#$%^&*()_+=\\-{}\\[\\]:;\"'<>,.?/]).{8,}$";
+
+		if (!(request.getNewPassword() != null && request.getNewPassword().matches(regex))){
+			return ResponseEntity.status(401)
+					.body(Map.of("message", "New password strength (min 8 chars, at least 1 number, 1 special char)"));
+		}
+		
+		if (!(request.getNewPassword() != null && request.getCurrentPassword() != null && 
+				request.getNewPassword().equals(request.getConfirmPassword()))){
+			return ResponseEntity.status(401)
+					.body(Map.of("message", "New Password doesnot match confirm password"));
+		}
+
+		
+		String email = userDetails.getUsername();
+
+		try {
+			userService.updatePassword(email, request.getCurrentPassword(), request.getNewPassword());
+		} catch (Exception e) {
+			System.err.println("[AuthController]  " + "Change Password" + email + ": " + e.getMessage());
+			e.printStackTrace();
+			return ResponseEntity.status(401).body(Map.of("message", e.getMessage()));
+		}
+
+		System.out.println("[Change Password] Updating password for : " + email);
+		return ResponseEntity.ok(Map.of("message", "Password Changed SUccessfully"));
+	}
+
 }
