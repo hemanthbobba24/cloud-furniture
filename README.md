@@ -132,6 +132,7 @@ This project showcases the ability to:
 git clone https://github.com/hemanthbobba24/cloud-furniture.git
 cd cloud-furniture/infra
 docker-compose up -d
+```
 This starts:
 
 MySQL on localhost:3306
@@ -139,11 +140,11 @@ MySQL on localhost:3306
 MongoDB on localhost:27017
 
 Backend Setup
-bash
-Copy code
+```bash
 cd backend
 ./mvnw clean install
 ./mvnw spring-boot:run
+```
 Backend runs at:
 http://localhost:8080
 
@@ -151,46 +152,42 @@ Configuration file:
 backend/src/main/resources/application.yml
 
 Frontend Setup
-bash
-Copy code
+```bash
 cd frontend
 npm install
 npm run dev
+```
 Frontend runs at:
 http://localhost:5173
 
 Default Local Credentials
-MySQL
 
-yaml
-Copy code
+MySQL
 Host: localhost
 Port: 3306
 Database: furniture
 Username: root
 Password: password
-MongoDB
 
-makefile
-Copy code
+MongoDB
 Host: localhost
 Port: 27017
 Database: furniture
 Username: root
 Password: password
+
 Creating an Admin User
+
 Register a user through the UI
 
 Promote the user using MySQL
-
-sql
-Copy code
+```bash
 UPDATE users
 SET role = 'ADMIN'
 WHERE email = 'your-email@example.com';
+```
 Project Structure
-text
-Copy code
+```bash
 cloud-furniture/
 ├── backend/
 │   ├── src/main/java/com/app/
@@ -217,7 +214,9 @@ cloud-furniture/
 │   └── docker-compose.yml
 │
 └── README.md
+```
 Roadmap
+
 Order and checkout system
 
 Payment integration (Stripe / PayPal)
@@ -235,10 +234,12 @@ Wishlist functionality
 Password reset flow
 
 Author
+
 Hemanth Sri Ram Bobba
 Software Engineer | Java Full-Stack Developer
 
 GitHub: https://github.com/hemanthbobba24
-LinkedIn: Add your LinkedIn URL
+
+LinkedIn: https://www.linkedin.com/in/hemanth-sri-ram-bobba/
 
 If you found this project useful, please consider giving it a star.
