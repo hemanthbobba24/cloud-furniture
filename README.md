@@ -1,308 +1,307 @@
-# 🛋️ Cloud Furniture - E-Commerce Platform
+🛋️ Cloud Furniture
 
-A full-stack e-commerce platform for furniture trading with role-based access control, built with Spring Boot and React.
+Full-Stack E-Commerce Platform | Spring Boot · React · Secure RBAC
 
-## 🌟 Features
+Cloud Furniture is a production-ready full-stack e-commerce platform for furniture trading that demonstrates secure authentication, role-based access control, scalable backend design, and a modern React frontend.
 
-### User Features
-- Browse furniture catalog with detailed product information
-- Shopping cart with quantity management
-- User authentication and authorization
-- Request seller status through approval workflow
+This project reflects real-world enterprise engineering practices rather than a tutorial-style demo.
 
-### Seller Features
-- Add and manage furniture listings
-- Upload product details (title, description, price, images)
-- View and edit personal inventory
-- Track sales (planned feature)
+🔗 GitHub Repository: https://github.com/hemanthbobba24/cloud-furniture
 
-### Admin Features
-- User management dashboard
-- Approve/reject seller requests
-- Manage all listings across the platform
-- Create additional admin accounts
-- Delete users and listings
+🚀 Live Demo: Coming soon
 
-## 🛠️ Tech Stack
+📌 Why This Project Matters (Recruiter Overview)
 
-### Backend
-- **Java 21** - Modern Java features and performance
-- **Spring Boot 3.5.6** - Enterprise-grade framework
-- **Spring Security** - JWT-based authentication
-- **Spring Data JPA** - MySQL integration for user management
-- **Spring Data MongoDB** - NoSQL database for product listings
-- **BCrypt** - Password hashing
-- **Maven** - Dependency management
+This project highlights my ability to:
 
-### Frontend
-- **React 18** - Modern UI library
-- **React Router** - Client-side routing
-- **Context API** - Global state management
-- **Vite** - Fast build tool and dev server
-- **CSS** - Custom styling
+Design and implement secure REST APIs using Spring Boot
 
-### Databases
-- **MySQL** - User authentication and management
-- **MongoDB** - Product listings and inventory
+Build JWT-based authentication & authorization
 
-### DevOps & Deployment Ready
-- **Docker** - Containerized backend application
-- **Docker Compose** - Local development environment
-- Ready for deployment on:
-  - **Render.com** (Backend)
-  - **Vercel** (Frontend)
-  - **Railway** (MySQL)
-  - **MongoDB Atlas** (MongoDB)
+Model real approval workflows (User → Seller → Admin)
 
-## 📋 Prerequisites
+Use polyglot persistence (MySQL + MongoDB)
 
-- Java 21 or higher
-- Node.js 18+ and npm
-- MySQL 8+
-- MongoDB 7+
-- Docker & Docker Compose (optional, for containerized setup)
+Develop role-protected React SPAs
 
-## 🚀 Getting Started
+Prepare applications for cloud deployment & containerization
 
-### 1. Clone the Repository
-```bash
+It closely mirrors the architecture of commercial e-commerce and SaaS platforms.
+
+🌟 Key Features
+👤 User Features
+
+Browse furniture catalog with detailed product information
+
+Shopping cart with quantity management
+
+Secure signup & login using JWT
+
+Request seller access through an approval workflow
+
+🧑‍💼 Seller Features
+
+Add, edit, and delete furniture listings
+
+Manage personal inventory
+
+Upload product details (title, price, description, images)
+
+Architecture ready for sales tracking and analytics
+
+🛡️ Admin Features
+
+User management dashboard
+
+Approve or reject seller requests
+
+Manage all listings across the platform
+
+Create additional admin accounts
+
+Delete users and listings
+
+🏗️ System Architecture
+Frontend
+
+React 18
+
+React Router
+
+Context API for global authentication state
+
+Protected routes based on user roles
+
+Vite for fast builds
+
+Backend
+
+Java 21
+
+Spring Boot 3
+
+Spring Security with JWT
+
+RESTful API architecture
+
+Layered design (Controller → Service → Repository)
+
+Databases
+
+MySQL – User accounts, authentication, roles
+
+MongoDB – Product listings and inventory
+
+Demonstrates polyglot persistence strategy
+
+DevOps & Deployment Ready
+
+Dockerized backend
+
+Docker Compose for local infrastructure
+
+Cloud-ready deployment:
+
+Backend: Render
+
+Frontend: Vercel
+
+MySQL: Railway
+
+MongoDB: MongoDB Atlas
+
+🔐 Security & Best Practices
+
+JWT-based stateless authentication
+
+BCrypt password hashing
+
+Role-based access control (RBAC)
+
+Secure CORS configuration
+
+Server-side input validation
+
+Frontend route guards
+
+Clean separation of concerns
+
+👥 Role Hierarchy & Access Model
+Role	Capabilities
+USER	Browse products, manage cart, request seller access
+SELLER	Manage own listings and inventory
+ADMIN	Full system control (users, sellers, listings)
+
+This design mirrors enterprise authorization models.
+
+🎯 API Endpoints (High-Level)
+
+Authentication
+
+POST /api/v1/auth/signup
+
+POST /api/v1/auth/login
+
+Public Listings
+
+GET /api/v1/listings
+
+GET /api/v1/listings/{id}
+
+Seller (SELLER role required)
+
+POST /api/v1/seller/listings
+
+PUT /api/v1/seller/listings/{id}
+
+DELETE /api/v1/seller/listings/{id}
+
+Admin (ADMIN role required)
+
+GET /admin/users
+
+POST /admin/approve-seller/{requestId}
+
+DELETE /admin/listings/{id}
+
+🧪 Running the Project Locally
+✅ Prerequisites
+
+Java 21+
+
+Node.js 18+
+
+Docker & Docker Compose (recommended)
+
+MySQL 8+ (manual setup only)
+
+MongoDB 7+ (manual setup only)
+
+🐳 Option 1: Docker Setup (Recommended)
 git clone https://github.com/hemanthbobba24/cloud-furniture.git
-cd cloud-furniture
-```
-
-### 2. Database Setup
-
-#### Option A: Using Docker Compose (Recommended)
-```bash
-cd infra
+cd cloud-furniture/infra
 docker-compose up -d
-```
 
-This will start:
-- MySQL on `localhost:3306`
-- MongoDB on `localhost:27017`
 
-#### Option B: Manual Setup
-1. Install MySQL and create database:
-```sql
-CREATE DATABASE furniture;
-```
+This starts:
 
-2. Install MongoDB and start the service
+MySQL → localhost:3306
 
-### 3. Backend Setup
+MongoDB → localhost:27017
 
-```bash
+⚙️ Backend Setup
 cd backend
-
-# Update application.yml with your database credentials
-# Located at: src/main/resources/application.yml
-
-# Build and run
 ./mvnw clean install
 ./mvnw spring-boot:run
-```
 
-Backend will start on `http://localhost:8080`
 
-### 4. Frontend Setup
+Backend runs at:
+👉 http://localhost:8080
 
-```bash
+Configuration file:
+backend/src/main/resources/application.yml
+
+🎨 Frontend Setup
 cd frontend
-
-# Install dependencies
 npm install
-
-# Start development server
 npm run dev
-```
 
-Frontend will start on `http://localhost:5173`
 
-## 🔑 Default Configuration
+Frontend runs at:
+👉 http://localhost:5173
 
-### Database Credentials (Docker Compose)
-```yaml
-MySQL:
-  Host: localhost
-  Port: 3306
-  Database: furniture
-  Username: root
-  Password: password
+🔑 Default Local Credentials
 
-MongoDB:
-  Host: localhost
-  Port: 27017
-  Username: root
-  Password: password
-  Database: furniture
-```
+MySQL
 
-### JWT Configuration
-- Secret key is configured in `application.yml`
-- Token expiry: 24 hours (86400 seconds)
+Host: localhost
+Port: 3306
+Database: furniture
+Username: root
+Password: password
 
-## 👥 User Roles & Access
 
-### Role Hierarchy
-1. **USER** - Default role for new registrations
-   - Browse products
-   - Manage cart
-   - Request seller status
+MongoDB
 
-2. **SELLER** - Approved through admin
-   - All USER permissions
-   - Add/edit/delete own listings
-   - Manage inventory
+Host: localhost
+Port: 27017
+Database: furniture
+Username: root
+Password: password
 
-3. **ADMIN** - Created via SQL or admin panel
-   - Full system access
-   - User management
-   - Seller request approval
-   - Manage all listings
+👮 Creating an Admin User
 
-### Creating an Admin User
+Register a normal user through the UI
 
-1. Register a normal user account through the UI
-2. Upgrade to admin via MySQL:
-```sql
-UPDATE users SET role = 'ADMIN' WHERE email = 'your-email@example.com';
-```
+Promote the user via MySQL:
 
-Or use the admin panel's "Create Admin" feature (requires existing admin access)
+UPDATE users
+SET role = 'ADMIN'
+WHERE email = 'your-email@example.com';
 
-## 📁 Project Structure
 
-```
+Or use the Admin Panel (requires existing admin).
+
+📁 Project Structure
 cloud-furniture/
-├── backend/
+├── backend/                     # Spring Boot backend
+│   ├── src/main/java/com/app/
+│   │   ├── auth/                # Authentication & JWT
+│   │   ├── user/                # User management (MySQL)
+│   │   ├── sellerrequest/       # Seller approval workflow
+│   │   ├── listing/             # Product listings (MongoDB)
+│   │   ├── admin/               # Admin operations
+│   │   └── config/              # Security & CORS configuration
+│   ├── src/main/resources/
+│   │   └── application.yml
+│   ├── Dockerfile
+│   └── pom.xml
+│
+├── frontend/                    # React frontend
 │   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/app/
-│   │   │   │   ├── admin/          # Admin controllers
-│   │   │   │   ├── auth/           # Authentication & JWT
-│   │   │   │   ├── config/         # Security & CORS config
-│   │   │   │   ├── listing/        # Product listings (MongoDB)
-│   │   │   │   ├── sellerrequest/  # Seller approval workflow
-│   │   │   │   └── user/           # User management (MySQL)
-│   │   │   └── resources/
-│   │   │       └── application.yml # Configuration
-│   ├── Dockerfile                  # Docker configuration
-│   └── pom.xml                     # Maven dependencies
-├── frontend/
-│   ├── src/
-│   │   ├── pages/                  # React components
-│   │   ├── App.jsx                 # Main app & routing
-│   │   ├── AuthContext.jsx         # Authentication state
-│   │   └── main.jsx                # Entry point
-│   └── package.json                # npm dependencies
+│   │   ├── pages/               # Feature pages
+│   │   ├── App.jsx              # Routing
+│   │   ├── AuthContext.jsx      # Auth state
+│   │   └── main.jsx             # Entry point
+│   └── package.json
+│
 ├── infra/
-│   └── docker-compose.yml          # Local dev environment
+│   └── docker-compose.yml       # MySQL & MongoDB
+│
 └── README.md
-```
 
-## 🔐 Security Features
+🚧 Known Limitations & Roadmap
+Planned Enhancements
 
-- **JWT Authentication** - Stateless token-based auth
-- **BCrypt Password Hashing** - Secure password storage
-- **Role-Based Access Control** - Granular permissions
-- **CORS Configuration** - Secure cross-origin requests
-- **Input Validation** - Server-side validation
-- **Protected Routes** - Frontend route guards
+Order & checkout system
 
-## 🎯 API Endpoints
+Payment integration (Stripe / PayPal)
 
-### Authentication
-```
-POST   /api/v1/auth/signup          # Register new user
-POST   /api/v1/auth/login           # Login and get JWT token
-```
+Email notifications
 
-### Listings (Public)
-```
-GET    /api/v1/listings             # Get all listings
-GET    /api/v1/listings/{id}        # Get listing by ID
-```
+Product reviews & ratings
 
-### Seller (Requires SELLER role)
-```
-GET    /api/v1/seller/my            # Get seller's listings
-POST   /api/v1/seller/listings      # Create new listing
-PUT    /api/v1/seller/listings/{id} # Update listing
-DELETE /api/v1/seller/listings/{id} # Delete listing
-```
+Advanced search and filters
 
-### Seller Requests (Requires USER role)
-```
-POST   /api/v1/seller-request/submit    # Submit seller request
-GET    /api/v1/seller-request/my-status # Check request status
-```
+Seller analytics dashboard
 
-### Admin (Requires ADMIN role)
-```
-GET    /admin/users                       # List all users
-POST   /admin/users/{id}/upgrade-to-seller # Manual upgrade
-DELETE /admin/users/{id}                  # Delete user
-POST   /admin/users/create-admin          # Create new admin
-GET    /admin/seller-requests             # Get pending requests
-POST   /admin/approve-seller/{requestId}  # Approve seller request
-POST   /admin/reject-seller/{requestId}   # Reject seller request
-DELETE /admin/listings/{id}               # Delete any listing
-```
+Wishlist functionality
 
-## 🐛 Known Issues & Future Enhancements
+Password reset flow
 
-### Planned Features
-- [ ] Order management system
-- [ ] Payment integration (Stripe/PayPal)
-- [ ] Email notifications
-- [ ] Product reviews and ratings
-- [ ] Advanced search and filtering
-- [ ] Seller analytics dashboard
-- [ ] Wishlist functionality
-- [ ] Password reset flow
+Current Limitations
 
-### Current Limitations
-- No order/checkout system (cart only)
-- No payment processing
-- No email notifications
-- Free tier deployment may have cold start delays
+No payment processing
 
-## 📸 Screenshots
+Cart only (no checkout)
 
+No email notifications
 
-## 🤝 Contributing
+Free-tier deployments may have cold starts
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+👨‍💻 Author
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Hemanth Sri Ram Bobba
+Software Engineer | Java Full-Stack Developer
 
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
-## 👨‍💻 Author
-
-**Hemanth Sri Ram Bobba**
-- GitHub: [@hemanthbobba24](https://github.com/hemanthbobba24)
-- LinkedIn: [Your LinkedIn Profile]
-
-## 🙏 Acknowledgments
-
-- Spring Boot documentation
-- React documentation
-- MongoDB Atlas
-- Railway.app
-- Render.com
-- All open-source contributors
-
----
-
-⭐ If you found this project helpful, please give it a star!
-
-**Live Demo:** _Coming soon!_
-
+GitHub: https://github.com/hemanthbobba24
