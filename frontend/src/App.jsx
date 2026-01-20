@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+﻿import { Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import { useAuth } from "./AuthContext";
 
@@ -32,7 +32,6 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/browse" element={<Browse />} />
           <Route path="/listing/:id" element={<ListingDetails />} />
-
           {/* Auth */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -40,7 +39,8 @@ export default function App() {
           {/* User */}
           <Route path="/cart" element={<Guard roles={["USER"]} element={<Cart />} />} />
           <Route path="/cart" element={<Guard roles={["USER"]} element={<Cart />} />} />
-<Route path="/request-seller" element={<Guard roles={["USER"]} element={<RequestSeller />} />} />
+          <Route path="/request-seller" element={<Guard roles={["USER"]} element={<RequestSeller />} />} />
+          <Route path="/change-password" element={<Guard roles={["USER"]} element={<ChangePassword />} />} />
 
           {/* Seller */}
           <Route path="/seller/my" element={<Guard roles={["SELLER"]} element={<SellerMy />} />} />
